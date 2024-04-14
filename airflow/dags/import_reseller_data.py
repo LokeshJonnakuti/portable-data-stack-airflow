@@ -48,7 +48,7 @@ def get_validated(filetype):
 
     with ENGINE.connect() as con:
 
-        result = con.execute(f"""SELECT Filename FROM ops.FlatFileLoadRegistry where validated=True and extension='{filetype}' """)
+        result = con.execute("""SELECT Filename FROM ops.FlatFileLoadRegistry where validated=True and extension=? """, (filetype, ))
 
         return set(row.values()[0] for row in result)
 
