@@ -1,7 +1,8 @@
 import itertools
-from random import randrange, choice, randint
+from random import choice
 from datetime import date, timedelta, datetime
 import names
+import secrets
 
 sdate = date(2019, 1, 1)   # start date
 edate = date(2020, 12, 31)   # end date
@@ -134,7 +135,7 @@ def random_date(start=datetime(2019,1,1), end=datetime(2021,1,31)):
     """Generate a random datetime between `start` and `end`"""
     result =  start + timedelta(
         # Get a random amount of seconds between `start` and `end`
-        seconds=randint(0, int((end - start).total_seconds())),)
+        seconds=secrets.SystemRandom().randint(0, int((end - start).total_seconds())),)
 
     return result.date()
 
@@ -144,7 +145,7 @@ PRODUCTS  = []
 
 id = 1
 for e in product_data:
-    PRODUCTS.append({'name': f'{e[0]} {e[1]} {e[2]}', 'city': e[2], 'price': randrange(15,45)/10.0, 'product_id': id })
+    PRODUCTS.append({'name': f'{e[0]} {e[1]} {e[2]}', 'city': e[2], 'price': secrets.SystemRandom().randrange(15,45)/10.0, 'product_id': id })
     id += 1
 
 FIRST_NAMES = [names.get_first_name() for i in range(1000)]
