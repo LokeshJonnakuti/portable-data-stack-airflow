@@ -48,7 +48,7 @@ def get_validated(filetype):
 
     with ENGINE.connect() as con:
 
-        result = con.execute(f"""SELECT Filename FROM ops.FlatFileLoadRegistry where validated=True and extension='{filetype}' """)
+        result = con.execute("""SELECT Filename FROM ops.FlatFileLoadRegistry where validated=True and extension=? """, (filetype, ))
 
         return set(row.values()[0] for row in result)
 
@@ -57,7 +57,7 @@ def get_processed(filetype):
 
     with ENGINE.connect() as con:
 
-        result = con.execute(f"""SELECT Filename FROM ops.FlatFileLoadRegistry where processed=True and extension='{filetype}' """)
+        result = con.execute("""SELECT Filename FROM ops.FlatFileLoadRegistry where processed=True and extension=? """, (filetype, ))
 
         return set(row.values()[0] for row in result)
 
@@ -66,14 +66,14 @@ def update_flatfile_registry(file_data):
 
     command = f"""
     INSERT INTO ops.FlatFileLoadRegistry(Filename, Extension, LoadDate, Processed, Validated)
-    VALUES('{file_data['filename']}','{file_data['extension']}','{file_data['loaddate']}',{file_data['processed']}, {file_data['validated']} ) 
+    VALUES(?,?,?,{file_data['processed']}, {file_data['validated']} ) 
     ON CONFLICT (Filename) 
-    DO UPDATE SET processed={file_data['processed']}, validated={file_data['validated']}, loaddate='{file_data['loaddate']}';
+    DO UPDATE SET processed={file_data['processed']}, validated={file_data['validated']}, loaddate=?;
     """
 
     with ENGINE.connect() as con:
 
-        con.execute(command)
+        con.execute(command, (file_data['filename'], file_data['extension'], file_data['loaddate'], file_data['loaddate'], ))
 
 def preprocess_csv():
 
