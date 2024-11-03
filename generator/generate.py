@@ -1,4 +1,3 @@
-from random import randrange, choice
 from datetime import datetime, timedelta
 import psycopg2
 from psycopg2.extras import execute_values
@@ -7,6 +6,7 @@ import declxml as xml
 import os
 import glob
 from assets import PRODUCTS, ALL_DAYS,CHANNELS, get_channel_distribution,FIRST_NAMES, LAST_NAMES, CSV_RESELLERS, XML_RESELLERS, RESELLERS_TRANSACTIONS, random_date
+import secrets
 
 CONNECTION = psycopg2.connect(user=os.environ["POSTGRES_USER"],
                                 password=os.environ["POSTGRES_PASSWORD"],
@@ -22,18 +22,18 @@ def generate_oltp(n=1000000):
 
     for i in range(n):
 
-        product = choice(PRODUCTS)
+        product = secrets.choice(PRODUCTS)
         
         bought = random_date()
         boughtdate = str(bought)
 
-        qty = randrange(1,6)
+        qty = secrets.SystemRandom().randrange(1,6)
 
-        transaction = {'customer_id': randrange(1,100000),
+        transaction = {'customer_id': secrets.SystemRandom().randrange(1,100000),
                        'product_id': product['product_id'],
                        'amount': product['price'] * qty,
                        'qty': qty,
-                       'channel_id': choice([i['channel_id'] for i in CHANNELS]),
+                       'channel_id': secrets.choice([i['channel_id'] for i in CHANNELS]),
                        'bought_date': boughtdate }
 
         trans.append(transaction)
@@ -113,8 +113,8 @@ def insert_oltp_customers():
 
     trans = []
     for i in range(100000):
-        first_name = choice(FIRST_NAMES)
-        last_name = choice(LAST_NAMES)
+        first_name = secrets.choice(FIRST_NAMES)
+        last_name = secrets.choice(LAST_NAMES)
         trans.append({'customer_id': i, 'first_name': first_name , 'last_name': last_name, 'email': f'{first_name}.{last_name}@example.com' })
 
     columns = trans[0].keys()
@@ -164,20 +164,20 @@ def generate_csv(n=50000):
 
     for i in range(n):
 
-        product = choice(PRODUCTS)
+        product = secrets.choice(PRODUCTS)
 
-        qty = randrange(1,7)
+        qty = secrets.SystemRandom().randrange(1,7)
 
         boughtdate = str(random_date())
 
-        first_name = choice(FIRST_NAMES)
-        last_name = choice(LAST_NAMES)
+        first_name = secrets.choice(FIRST_NAMES)
+        last_name = secrets.choice(LAST_NAMES)
 
         transaction = {
                     'Product name': product['name'],
                     'Quantity':  qty,
                     'Total amount': qty * product['price'],
-                    'Sales Channel': choice(get_channel_distribution('reseller')),
+                    'Sales Channel': secrets.choice(get_channel_distribution('reseller')),
                     'Customer First Name': first_name,
                     'Customer Last Name': last_name,
                     'Customer Email': f'{first_name}.{last_name}@example.com',
@@ -224,16 +224,16 @@ def generate_xml(resellerid, n = 50000 ):
 
     for i in range(n):
 
-        product = choice(PRODUCTS)
+        product = secrets.choice(PRODUCTS)
 
-        qty = randrange(1,7)
+        qty = secrets.SystemRandom().randrange(1,7)
 
         bought = random_date()
 
         boughtdate = str(bought).replace('-','')
 
-        first_name = choice(FIRST_NAMES)
-        last_name = choice(LAST_NAMES)
+        first_name = secrets.choice(FIRST_NAMES)
+        last_name = secrets.choice(LAST_NAMES)
 
         transaction = {
                     'date': boughtdate,
@@ -241,7 +241,7 @@ def generate_xml(resellerid, n = 50000 ):
                     'productName': product['name'],
                     'qty' : qty,
                     'totalAmount': qty * product['price'] * 1.0,
-                    'salesChannel': choice(get_channel_distribution('reseller')),
+                    'salesChannel': secrets.choice(get_channel_distribution('reseller')),
                     'customer': {'firstname': first_name, 'lastname': last_name, 'email': f'{first_name}.{last_name}@example.com' },
                     'dateCreated': boughtdate,
                     'seriesCity': product['city'],
